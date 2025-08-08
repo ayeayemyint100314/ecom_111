@@ -1,17 +1,33 @@
 <?php
+require_once "dbconnect.php";
+if(!isset($_SESSION))
+{
+    session_start();
+}
 
     if(isset($_POST['btnLogin']))  // login request
     {
         $email = $_POST['email']; // it is name attribute value of form control
-        $password = $_POST['password'];
-       $hashcode = "$2y$10\$eRxLvu5qdYllylfgsjlqr.PlzkfkPGT.qRyTGx3gXEfwKPNoEt0fK";
-        if(password_verify($password, $hashcode )) // plain text, hashcode
-       {
-            echo "login success";
-       }
-       else{
-            echo "login fail";
-       }
+        $password = $_POST['password']; // plain text
+        $sql = "select * from admin where email=?";
+        $stmt = $conn->prepare($sql); // prevent SQL injection attack
+        $stmt->execute([$email]);
+        $adminInfo = $stmt->fetch();
+        //$errMsg = "";
+        if($adminInfo) // email exists
+        {   
+            $hashcode = $adminInfo['password'];       
+            if(password_verify($password, $hashcode )) // plain text, hashcode
+            {  $_SESSION['email']= $email;                    
+            }
+            else{ // correct email and incorrect password
+                    $errMsg = "Incorrect password!";
+                }
+        }// if end
+        else{ // email does not exist.
+                $errMsg = "Email does not exist.";
+        }
+       
 
     }
 
@@ -28,7 +44,7 @@
 
 </head>
 
-<body>
+<body style="height:100%" class="bg-light">
 
     <div class="container-fluid">
         <div class="row">
@@ -38,10 +54,19 @@
 
         </div>
         <div class="row ">
-            <div class="col-md-6 mx-auto">
-                <form action="login.php" class="form mt-3" method="post">
+            <div class="col-md-4 mx-auto">
+                <form action="login.php" class="form mt-3 border border-2 rounded px-2 py-2" method="post">
                     <fieldset>
                         <legend>Admin Login</legend>
+                        <?php
+                        if(isset($errMsg))
+                        {
+                            echo "<p class='alert alert-danger'>$errMsg</p>";
+                            //unset($errMsg);
+                            $errMsg = null;
+                        }
+                        ?>
+
                         <div class="mb-3">
                             <label for="" class="form-label">Email</label>
                             <input type="email" class="form-control" name="email">
