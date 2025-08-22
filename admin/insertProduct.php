@@ -1,21 +1,49 @@
 <?php
 require_once "dbconnect.php";
 try {
-        $sql = "select * from category";
-        $stmt = $conn->prepare($sql);
-        $stmt->execute();
-        $categories = $stmt->fetchAll(); // multiple rows returned
+    $sql = "select * from category";
+    $stmt = $conn->prepare($sql);
+    $stmt->execute();
+    $categories = $stmt->fetchAll(); // multiple rows returned
 
 } catch (PDOException $e) {
     echo $e->getMessage();
 }
 
 // when insertButton is clicked
-if(isset($_POST['insertBtn']))
-{
-    echo "$_POST[pname]<br> $_POST[category]<br> $_POST[description]<br>
-    $_POST[sprice]<br>$_POST[quantity]<br>$_POST[bprice]<br>";
+if (isset($_POST['insertBtn'])) {
+    $productName = $_POST['pname'];
+    $category = $_POST['category'];
+    $desc = $_POST['description'];
+    $sellPrice = $_POST['sprice'];
+    $qty = $_POST['quantity'];
+    $buyPrice = $_POST['bprice'];
+    $productImage = $_FILES['pimg'];
+    $filePath = "productImages/" . $productImage['name'];
+    try {
+        if (move_uploaded_file($productImage['tmp_name'], $filePath)) { //id	product_name,cost,price,description,image_path,	category,quantity	
 
+            $sql = "insert into product 
+       (product_name, cost, price, description, image_path,	category, quantity)
+       values
+       ( ?, ?, ?, ?, ?, ?, ?)";
+            $stmt = $conn->prepare($sql);
+            $flag = $stmt->execute([
+                $productName,
+                $buyPrice,
+                $sellPrice,
+                $desc,
+                $filePath,
+                $category,
+                $qty
+            ]);
+            if ($flag) {
+                header("Location:viewInfo.php");
+            }
+        }
+    } catch (Exception $e) {
+        echo $e->getMessage();
+    }
 }
 
 
@@ -42,11 +70,11 @@ if(isset($_POST['insertBtn']))
             <?php require_once "navigation.php" ?>
         </div>
         <div class="row">
-            <div class="col-md-12 mx-auto py-5">
-                <form action="insertProduct.php" class="form card" method="post"
+            <div class="col-md-6 py-5 mx-auto">
+                <form action="insertProduct.php" class="form card bg-light" method="post"
                     enctype="multipart/form-data">
-                    <div class="row">
-                        <div class="col-md-4">
+                    <div class="row mx-auto">
+                        <div class="col-md-6">
                             <div class="mb-2">
                                 <label for="pname" class="form-label">Product Name</label>
                                 <input type="text" class="form-control" name="pname"
@@ -56,14 +84,13 @@ if(isset($_POST['insertBtn']))
                                 <label for="" class="form-label"></label>
                                 <select name="category" id="" class="form-select">
                                     <option value="">Choose Category</option>
-                                    <?php  
-                                        if(isset($categories))
-                                        {   foreach($categories as $category)
-                                            {
-                                                echo "<option value=$category[id]>$category[cat_name]</option>";
-                                            }
-                                        }                                
-                                    
+                                    <?php
+                                    if (isset($categories)) {
+                                        foreach ($categories as $category) {
+                                            echo "<option value=$category[id]>$category[cat_name]</option>";
+                                        }
+                                    }
+
                                     ?>
 
                                 </select>
@@ -82,7 +109,7 @@ if(isset($_POST['insertBtn']))
                             </div>
 
                         </div>
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <div class="mb-2">
                                 <label for="sprice" class="form-label">Sell Price</label>
                                 <input type="number" class="form-control" name="sprice"
@@ -100,7 +127,7 @@ if(isset($_POST['insertBtn']))
                                     id="pimg">
                             </div>
                             <div class="mb-2">
-                                <button class="btn btn-primary" name="insertBtn">Insert Product</button>
+                                <button type="submit" class="btn btn-primary" name="insertBtn">Insert Product</button>
                             </div>
                         </div>
                     </div>
