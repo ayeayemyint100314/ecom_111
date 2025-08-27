@@ -16,7 +16,7 @@ if(isset($_POST['btnAdd'])) // checking whether submit button is clicked
         if($status)
         {   $message = "category with id $id has been inserted";
             $_SESSION['message'] = $message;
-            header("Location:viewInfo.php");
+            header("Location:viewInfo.php?show=categories");
         }
 
 

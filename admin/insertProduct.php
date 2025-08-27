@@ -38,7 +38,7 @@ if (isset($_POST['insertBtn'])) {
                 $qty
             ]);
             if ($flag) {
-                header("Location:viewInfo.php");
+                header("Location:viewInfo.php?show=products");
             }
         }
     } catch (Exception $e) {
