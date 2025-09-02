@@ -16,8 +16,24 @@ if (isset($_GET['show']) && $_GET['show'] == "categories") {
     }
 } else if (isset($_GET['show']) && $_GET['show'] == "products") {
 
+    try{
+        $sql = "select  p.id, p.product_name,
+		p.cost, p.price,
+        p.description, p.image_path,
+        c.cat_name as category, 
+        p.id catid, p.quantity
+        from product p, category c 
+        where p.category = c.id";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute();
+        $products = $stmt->fetchAll();
+        
 
-    
+    }catch(PDOException $e)
+    {
+        echo $e->getMessage();
+    }
+
     
 }
 
@@ -42,6 +58,7 @@ if (isset($_GET['show']) && $_GET['show'] == "categories") {
         </div>
         <div class="row">
             <div class="col-md-2 mx-auto py-5">
+                <?php  if(isset($_SESSION['admin_login'])) { ?>
                 <div class="card">
                     <a href="insertCategory.php"
                         class="btn btn-outline-primary rounded mb-2">
@@ -50,13 +67,15 @@ if (isset($_GET['show']) && $_GET['show'] == "categories") {
                         class="btn btn-outline-primary rounded mb-2">
                         Insert Product</a>
                 </div>
-
+                <?php  }  ?>
             </div>
             <div class="col-md-10 mx-auto py-5">
                 <?php
                 if (isset($_SESSION['message'])) {
                     echo "<p class='alert alert-success'>$_SESSION[message] </p>";
+                    unset($_SESSION['message']);
                 }
+               
                 ?>
                 <table class="table table-striped">
                     <?php
@@ -69,10 +88,30 @@ if (isset($_GET['show']) && $_GET['show'] == "categories") {
                                 
                             </tr>";
                         } // foreach end
+                    }// end of category
+                    else if(isset($products))
+                    {
+                        foreach($products as $product)
+                        { $desc = substr($product['description'], 0, 50);
+                        echo "<tr>
+                        <td>$product[id]</td>
+                        <td>$product[product_name]</td>
+                        <td>$product[cost]</td>
+                        <td>$product[price]</td>
+                        <td><span style=word-wrap:break-word>$desc </span></td>
+                        <td>$product[category]</td>
+                        <td>$product[quantity]</td>
+                        <td><img style=width:75px;height:75px; src=$product[image_path]></td>                      
+                        <td><a class='btn btn-primary btn-sm' href=editProduct.php?val=edit&id=$product[id]>edit </a> </td>
+                        <td><a class='btn btn-danger btn-sm' href=editProduct.php?val=del&id=$product[id]>delete </a> </td>
+                        </tr>";
 
 
+                        }
 
-                    } // if end               
+
+                    }
+                                    
 
                     ?>
                 </table>

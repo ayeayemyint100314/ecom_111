@@ -18,8 +18,9 @@ if(!isset($_SESSION))
         {   
             $hashcode = $adminInfo['password'];       
             if(password_verify($password, $hashcode )) // plain text, hashcode
-            {  $_SESSION['email']= $email; 
-                header("Location:viewInfo.php");                   
+            {   $_SESSION['admin_login'] = true;
+                $_SESSION['email']= $email; 
+                header("Location:viewInfo.php?show=products");                   
             }
             else{ // correct email and incorrect password
                     $errMsg = "Incorrect password!";

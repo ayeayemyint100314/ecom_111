@@ -1,6 +1,9 @@
 <?php 
 
-
+if(!isset($_SESSION))
+{
+  session_start();
+}
 
 
 
@@ -21,9 +24,20 @@
         <li class="nav-item">
           <a class="nav-link" href="#">Link</a>
         </li>
+        <?php if(isset($_SESSION['admin_login'])) {  ?>
         <li class="nav-item">
-          <a class="nav-link" href="viewInfo.php">View Info</a>
+          <a class="nav-link" href="viewInfo.php?show=categories">Categories</a>
         </li>
+         <li class="nav-item">
+          <a class="nav-link" href="viewInfo.php?show=products">Products</a>
+        </li>
+        <li class="nav-item">
+          <span class="nav-link disabled"><?php echo $_SESSION['email'] ?></span>
+        </li>
+        <li class="nav-item">
+          <a href="logout.php" class="nav-link">Logout</a>
+        </li>
+        <?php } ?>
       </ul>
       <form class="d-flex" role="search">
         <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search"/>
